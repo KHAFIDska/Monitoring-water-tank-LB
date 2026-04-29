@@ -3,33 +3,37 @@
 :root {
   /* Light Theme Colors (Default) */
   --bg-color: #f3f6f9;
+  --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
   --text-color: #1a1a2e;
   --secondary-text: #6b7280;
-  --card-bg: #ffffff;
-  --border-color: #e2e8f0;
+  --card-bg: rgba(255, 255, 255, 0.8);
+  --navbar-bg: rgba(255, 255, 255, 0.9);
+  --border-color: rgba(226, 232, 240, 0.8);
   --primary-color: #3b82f6;
   --primary-hover: #2563eb;
   --danger-color: #ef4444;
   --danger-hover: #dc2626;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
-  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
-  --shadow-lg: 0 10px 25px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+  --shadow-lg: 0 10px 25px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.02);
   --border-radius: 12px;
-  --transition: all 0.3s ease;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 [data-theme="dark"] {
   /* Dark Theme Colors */
   --bg-color: #0f172a;
+  --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #020617 100%);
   --text-color: #f8fafc;
   --secondary-text: #94a3b8;
-  --card-bg: #1e293b;
-  --border-color: #334155;
+  --card-bg: rgba(30, 41, 59, 0.7);
+  --navbar-bg: rgba(15, 23, 42, 0.85);
+  --border-color: rgba(51, 65, 85, 0.5);
   --primary-color: #60a5fa; 
   --primary-hover: #93c5fd;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
-  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.3);
-  --shadow-lg: 0 10px 25px -3px rgba(0,0,0,0.4);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.2);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.2);
+  --shadow-lg: 0 10px 25px -3px rgba(0,0,0,0.3);
 }
 
 * {
@@ -40,10 +44,12 @@
 
 body {
   font-family: 'Inter', sans-serif;
+  background: var(--bg-gradient);
   background-color: var(--bg-color);
+  background-attachment: fixed;
   color: var(--text-color);
   line-height: 1.6;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background 0.3s ease, color 0.3s ease;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -251,11 +257,13 @@ button:active {
 /* Cards */
 .card {
   background-color: var(--card-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-radius: calc(var(--border-radius) * 1.5);
   padding: 2.5rem;
   box-shadow: var(--shadow-lg);
   border: 1px solid var(--border-color);
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+  transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
 }
 
 /* Profile Picture Styles */
@@ -344,7 +352,9 @@ button:active {
 
 /* Dashboard Layout */
 .navbar {
-  background-color: var(--card-bg);
+  background-color: var(--navbar-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;
