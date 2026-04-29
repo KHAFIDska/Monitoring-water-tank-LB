@@ -277,11 +277,26 @@ button:active {
 /* Cards */
 .card {
   background-color: var(--card-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-radius: calc(var(--border-radius) * 1.5);
   padding: 2.5rem;
   box-shadow: var(--shadow-lg);
   border: 1px solid var(--border-color);
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.05) 0%, transparent 70%);
+  pointer-events: none;
 }
 
 /* Profile Picture Styles */
@@ -497,7 +512,9 @@ button:active {
 }
 
 .status-badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   padding: 0.5rem 1.5rem;
   border-radius: 20px;
   font-size: 1rem;
@@ -505,6 +522,84 @@ button:active {
   background-color: rgba(16, 185, 129, 0.1);
   color: #10b981;
   margin-top: 1rem;
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.1);
+}
+
+/* Quick Stats Bar */
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  width: 100%;
+}
+
+.stat-item {
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: var(--transition);
+}
+
+.stat-item:hover {
+  transform: translateY(-2px);
+  border-color: var(--primary-color);
+}
+
+.stat-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--primary-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-info h4 {
+  font-size: 0.85rem;
+  color: var(--secondary-text);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+.stat-info p {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin: 0;
+}
+
+/* Pulsating Dot */
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  background: #10b981;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.glow-text {
+  text-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+}
+
+[data-theme="dark"] .glow-text {
+  text-shadow: 0 0 30px rgba(96, 165, 250, 0.5);
 }
 
 /* Responsive Improvements */

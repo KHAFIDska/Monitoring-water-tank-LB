@@ -51,6 +51,37 @@
     </aside>
 
     <section class="content-area">
+      <!-- Quick Stats Bar -->
+      <div class="stats-bar">
+        <div class="stat-item">
+          <div class="stat-icon">
+            <i data-feather="rss"></i>
+          </div>
+          <div class="stat-info">
+            <h4>Koneksi</h4>
+            <p>Stabil</p>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon">
+            <i data-feather="cpu"></i>
+          </div>
+          <div class="stat-info">
+            <h4>System</h4>
+            <p><span class="pulse-dot"></span> Live</p>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon">
+            <i data-feather="clock"></i>
+          </div>
+          <div class="stat-info">
+            <h4>Update</h4>
+            <p id="lastUpdate">--:--</p>
+          </div>
+        </div>
+      </div>
+
       <!-- MENU 1: Volume -->
       <div id="menu1" style="display: flex; flex-direction: column; width: 100%;">
         <div class="dashboard-grid">
@@ -59,7 +90,7 @@
               <i data-feather="activity" style="width: 32px; height: 32px; color: var(--primary-color);"></i>
             </div>
             <h3 class="data-label">Persentase Volume</h3>
-            <div class="data-value" id="persen">0%</div>
+            <div class="data-value glow-text" id="persen">0%</div>
             <div class="chart-container" style="width: 100%; height: 180px; margin-top: 1rem;">
               <canvas id="persenChart"></canvas>
             </div>
@@ -69,7 +100,7 @@
               <i data-feather="pie-chart" style="width: 32px; height: 32px; color: var(--primary-color);"></i>
             </div>
             <h3 class="data-label">Total Air</h3>
-            <div class="data-value" id="liter">0 L</div>
+            <div class="data-value glow-text" id="liter">0 L</div>
             <div class="chart-container" style="width: 100%; height: 180px; margin-top: 1rem;">
               <canvas id="literChart"></canvas>
             </div>
@@ -85,7 +116,7 @@
               <i data-feather="bar-chart-2" style="width: 32px; height: 32px; color: var(--primary-color);"></i>
             </div>
             <h3 class="data-label">Tinggi Permukaan</h3>
-            <div class="data-value" id="tinggi">0 cm</div>
+            <div class="data-value glow-text" id="tinggi">0 cm</div>
             <div class="chart-container" style="width: 100%; height: 180px; margin-top: 1rem;">
               <canvas id="tinggiChart"></canvas>
             </div>
@@ -95,7 +126,7 @@
               <i data-feather="info" style="width: 48px; height: 48px; color: var(--primary-color);"></i>
             </div>
             <h3 class="data-label">Status Tangki</h3>
-            <div class="status-badge" id="status">NORMAL</div>
+            <div class="status-badge" id="status"><span class="pulse-dot"></span> NORMAL</div>
           </div>
         </div>
       </div>
@@ -319,6 +350,10 @@
     };
 
     const ctxPersen = document.getElementById('persenChart').getContext('2d');
+    const gradientPersen = ctxPersen.createLinearGradient(0, 0, 0, 180);
+    gradientPersen.addColorStop(0, 'rgba(59, 130, 246, 0.4)');
+    gradientPersen.addColorStop(1, 'rgba(59, 130, 246, 0)');
+
     const persenChart = new Chart(ctxPersen, {
       type: 'line',
       data: {
@@ -327,17 +362,19 @@
           label: 'Persentase (%)',
           data: [],
           borderColor: '#3b82f6',
-          backgroundColor: 'rgba(59, 130, 246, 0.1)',
-          borderWidth: 2,
+          backgroundColor: gradientPersen,
+          borderWidth: 3,
           fill: true,
-          tension: 0.4
+          tension: 0.4,
+          pointRadius: 0,
+          pointHoverRadius: 5,
         }]
       },
       options: {
         ...commonOptions,
         scales: {
-          y: { min: 0, max: 100, grid: { color: 'rgba(107, 114, 128, 0.1)' } },
-          x: { grid: { display: false } }
+          y: { min: 0, max: 100, grid: { color: 'rgba(107, 114, 128, 0.05)' }, border: { display: false } },
+          x: { grid: { display: false }, border: { display: false } }
         }
       }
     });
@@ -394,7 +431,8 @@
         document.getElementById("liter").innerText = data.liter + " L";
         document.getElementById("persen").innerText = data.persen + "%";
         document.getElementById("tinggi").innerText = data.tinggi_air + " cm";
-        document.getElementById("status").innerText = data.status;
+        document.getElementById("status").innerHTML = `<span class="pulse-dot"></span> ${data.status}`;
+        document.getElementById("lastUpdate").innerText = now;
 
         let now = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
