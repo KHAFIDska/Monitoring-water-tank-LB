@@ -11,18 +11,49 @@ function isDisposableEmail(email) {
     return blockedDomains.includes(domain?.toLowerCase());
 }
 
+// PREMIUM NOTIFICATION SYSTEM
+function showNotification(message, type = 'info') {
+    let container = document.getElementById('notification-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'notification-container';
+        document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    
+    let icon = 'info';
+    if (type === 'error') icon = 'alert-circle';
+    if (type === 'success') icon = 'check-circle';
+    if (type === 'warning') icon = 'alert-triangle';
+
+    toast.innerHTML = `
+        <i data-feather="${icon}"></i>
+        <span>${message}</span>
+    `;
+    
+    container.appendChild(toast);
+    feather.replace();
+
+    setTimeout(() => {
+        toast.classList.add('hide');
+        setTimeout(() => toast.remove(), 300);
+    }, 5000);
+}
+
 // REGISTER
 function register() {
     let email = document.getElementById("email").value;
     let password = document.getElementById("password").value;
 
     if (!email || !password) {
-        alert("Email dan password harus diisi!");
+        showNotification("Email dan password harus diisi!", "warning");
         return;
     }
 
     if (isDisposableEmail(email)) {
-        alert("Maaf, penggunaan email sementara tidak diperbolehkan. Silakan gunakan Gmail atau email resmi lainnya.");
+        showNotification("Email sementara tidak diperbolehkan.", "error");
         return;
     }
 
@@ -53,15 +84,18 @@ function register() {
                     document.getElementById("successEmailText").innerText = `Kami telah mengirimkan tautan verifikasi ke ${email}.`;
                     feather.replace();
 
-                    // Logout agar mereka harus verifikasi dulu sebelum masuk
-                    auth.signOut();
+                    // Logout agar mereka harus verifikasi dulu sebelum masuk (opsional, tapi polling butuh user stay logged in)
+                    // auth.signOut(); // Jangan logout dulu agar bisa polling status
+
+                    // Mulai polling status verifikasi
+                    startVerificationPolling();
                 })
                 .catch(emailError => {
                     btn.disabled = false;
                     btn.innerHTML = originalText;
                     feather.replace();
-                    console.error("Firebase Email Error:", emailError);
-                    alert("Gagal mengirim email verifikasi: " + emailError.message + "\n\nPastikan domain website Anda sudah ditambahkan ke 'Authorized Domains' di Firebase Console.");
+                    console.error("Firebase Email Error Details:", emailError);
+                    showNotification("Gagal kirim email verifikasi. Periksa koneksi atau Authorized Domains di Firebase.", "error");
                 });
         })
         .catch(err => {
@@ -70,9 +104,10 @@ function register() {
             feather.replace();
             
             if (err.code === 'auth/email-already-in-use') {
-                alert("Email sudah terdaftar. Silakan login atau gunakan email lain.");
+                showNotification("Email sudah terdaftar. Silakan login.", "warning");
             } else {
-                alert("Gagal daftar: " + err.message);
+                console.error("Register Error:", err);
+                showNotification("Gagal daftar: " + err.message, "error");
             }
         });
 }
@@ -92,12 +127,12 @@ function login() {
 
     // Validasi Captcha
     if (!captchaInput) {
-        alert("Silakan masukkan kode captcha!");
+        showNotification("Silakan masukkan kode captcha!", "warning");
         return;
     }
     
     if (captchaInput.toLowerCase() !== window.captchaCode.toLowerCase()) {
-        alert("Kode captcha salah! Silakan coba lagi.");
+        showNotification("Kode captcha salah!", "error");
         generateCaptcha();
         document.getElementById("captchaInput").value = "";
         return;
@@ -134,12 +169,55 @@ function login() {
             }
         })
         .catch(err => {
-            alert("Login gagal: " + err.message);
+            console.error("Login Error Details:", err);
+            showNotification("Login gagal: " + err.message, "error");
             generateCaptcha();
             if (document.getElementById("captchaInput")) {
                 document.getElementById("captchaInput").value = "";
             }
         });
+}
+
+function startVerificationPolling() {
+    const checkInterval = setInterval(() => {
+        const user = auth.currentUser;
+        if (user) {
+            user.reload().then(() => {
+                if (user.emailVerified) {
+                    clearInterval(checkInterval);
+                    showNotification("Email berhasil diverifikasi! Mengalihkan...", "success");
+                    
+                    // Update status di database
+                    db.ref("users/" + user.uid).update({
+                        emailVerified: true
+                    });
+
+                    setTimeout(() => {
+                        window.location = "dashboard.html";
+                    }, 2000);
+                }
+            });
+        }
+    }, 3000); // Cek setiap 3 detik
+}
+
+function openEmailProvider() {
+    const emailInput = document.getElementById("email");
+    if (!emailInput) return;
+    
+    const email = emailInput.value;
+    const domain = email.split('@')[1]?.toLowerCase();
+    
+    if (domain === 'gmail.com') {
+        window.open('https://mail.google.com', '_blank');
+    } else if (domain === 'outlook.com' || domain === 'hotmail.com') {
+        window.open('https://outlook.live.com', '_blank');
+    } else if (domain === 'yahoo.com') {
+        window.open('https://mail.yahoo.com', '_blank');
+    } else {
+        showNotification("Membuka provider email Anda...", "info");
+        window.open('https://' + domain, '_blank');
+    }
 }
 
 function resendVerification() {

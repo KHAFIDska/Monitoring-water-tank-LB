@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Register - Bina Electric</title>
+  <title>Register - Bina Elektric</title>
   <link rel="stylesheet" href="style.css?v=1.1">
   <script src="https://unpkg.com/feather-icons"></script>
 </head>
@@ -65,9 +65,18 @@
             <p><small>Jika tidak ada di inbox, silakan periksa folder <strong>Spam</strong> atau <strong>Promosi</strong>.</small></p>
           </div>
           
-          <button onclick="window.location.href='index.html'" class="w-100">
-            Lanjut ke Login <i data-feather="arrow-right"></i>
-          </button>
+          <div id="emailActionButtons" class="mt-4">
+            <button id="openMailBtn" onclick="openEmailProvider()" class="mb-2 w-100" style="background-color: #ea4335;">
+              <i data-feather="external-link"></i> Buka Gmail
+            </button>
+            <button onclick="window.location.href='index.html'" class="btn-secondary w-100">
+              Ke Halaman Login <i data-feather="log-in"></i>
+            </button>
+          </div>
+
+          <div class="mt-4 pt-3" style="border-top: 1px solid var(--border-color);">
+            <p><small><i data-feather="loader" class="spin" style="width: 14px; height: 14px;"></i> Menunggu verifikasi... Halaman ini akan otomatis berpindah jika Anda sudah menekan link di email.</small></p>
+          </div>
         </div>
       </div>
     </div>
