@@ -1,15 +1,5 @@
 // Firebase is initialized in firebase-config.js
 
-// List of common disposable email domains to block
-const blockedDomains = [
-    'mailinator.com', '10minutemail.com', 'temp-mail.org', 'guerrillamail.com',
-    'dispostable.com', 'getnada.com', 'throwawaymail.com', 'yopmail.com'
-];
-
-function isDisposableEmail(email) {
-    const domain = email.split('@')[1];
-    return blockedDomains.includes(domain?.toLowerCase());
-}
 
 // PREMIUM NOTIFICATION SYSTEM
 function showNotification(message, type = 'info') {
@@ -52,11 +42,6 @@ function register() {
         return;
     }
 
-    if (isDisposableEmail(email)) {
-        showNotification("Email sementara tidak diperbolehkan.", "error");
-        return;
-    }
-
     // Tampilkan loading
     const btn = document.querySelector('button[onclick*="register"]');
     let originalText = "";
@@ -78,9 +63,9 @@ function register() {
                 createdAt: new Date().toISOString(),
                 emailVerified: true // Set true secara otomatis untuk kemudahan
             }).then(() => {
-                showNotification("Pendaftaran berhasil! Silakan login.", "success");
+                showNotification("Pendaftaran berhasil! Mengalihkan ke dashboard...", "success");
                 setTimeout(() => {
-                    window.location = "index.html";
+                    window.location = "dashboard.html";
                 }, 2000);
             });
         })
