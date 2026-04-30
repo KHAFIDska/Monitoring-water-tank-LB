@@ -38,23 +38,31 @@ function register() {
             const user = userCredential.user;
             
             // Kirim Verifikasi Email
-            user.sendEmailVerification().then(() => {
-                // Simpan data awal ke database
-                db.ref("users/" + user.uid).set({
-                    email: email,
-                    createdAt: new Date().toISOString(),
-                    emailVerified: false
+            user.sendEmailVerification()
+                .then(() => {
+                    // Simpan data awal ke database
+                    db.ref("users/" + user.uid).set({
+                        email: email,
+                        createdAt: new Date().toISOString(),
+                        emailVerified: false
+                    });
+
+                    // Tampilkan State Sukses
+                    document.getElementById("registerForm").style.display = "none";
+                    document.getElementById("successState").style.display = "block";
+                    document.getElementById("successEmailText").innerText = `Kami telah mengirimkan tautan verifikasi ke ${email}.`;
+                    feather.replace();
+
+                    // Logout agar mereka harus verifikasi dulu sebelum masuk
+                    auth.signOut();
+                })
+                .catch(emailError => {
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                    feather.replace();
+                    console.error("Firebase Email Error:", emailError);
+                    alert("Gagal mengirim email verifikasi: " + emailError.message + "\n\nPastikan domain website Anda sudah ditambahkan ke 'Authorized Domains' di Firebase Console.");
                 });
-
-                // Tampilkan State Sukses
-                document.getElementById("registerForm").style.display = "none";
-                document.getElementById("successState").style.display = "block";
-                document.getElementById("successEmailText").innerText = `Kami telah mengirimkan tautan verifikasi ke ${email}.`;
-                feather.replace();
-
-                // Logout agar mereka harus verifikasi dulu sebelum masuk
-                auth.signOut();
-            });
         })
         .catch(err => {
             btn.disabled = false;
@@ -148,12 +156,15 @@ function resendVerification() {
         .then((userCredential) => {
             const user = userCredential.user;
             if (!user.emailVerified) {
-                user.sendEmailVerification().then(() => {
-                    alert("Email verifikasi telah dikirim ulang! Silakan cek inbox.");
-                    auth.signOut();
-                }).catch(e => {
-                    alert("Gagal mengirim ulang: " + e.message);
-                });
+                user.sendEmailVerification()
+                    .then(() => {
+                        alert("Email verifikasi telah dikirim ulang! Silakan cek inbox.");
+                        auth.signOut();
+                    })
+                    .catch(e => {
+                        console.error("Resend Error:", e);
+                        alert("Gagal mengirim ulang: " + e.message + "\n\nPeriksa konfigurasi 'Authorized Domains' di Firebase.");
+                    });
             } else {
                 alert("Email Anda sudah terverifikasi. Silakan login.");
                 window.location.reload();
