@@ -20,33 +20,55 @@
 
   <main class="login-container">
     <div class="card login-card text-center">
-      <div class="mb-3">
-        <i data-feather="user-plus" style="color: var(--primary-color); width: 48px; height: 48px;"></i>
-        <h2 class="mt-3">Daftar Akun</h2>
-        <p>Gunakan email asli untuk menerima tautan verifikasi</p>
-      </div>
+      <!-- Registration Form Container -->
+      <div id="registerForm">
+        <div class="mb-3">
+          <i data-feather="user-plus" style="color: var(--primary-color); width: 48px; height: 48px;"></i>
+          <h2 class="mt-3">Daftar Akun</h2>
+          <p>Gunakan email asli untuk menerima tautan verifikasi</p>
+        </div>
 
-      <div class="form-group text-left">
-        <label for="email" class="mb-1 d-block">Alamat Email</label>
-        <input type="email" id="email" placeholder="contoh@gmail.com" required>
-        
-        <label for="password" class="mb-1 d-block">Kata Sandi</label>
-        <div class="password-wrapper">
-          <input type="password" id="password" placeholder="Minimal 6 karakter" required>
-          <button type="button" class="toggle-password" onclick="togglePasswordVisibility()"
-            aria-label="Toggle password visibility">
-            <i id="eyeIcon" data-feather="eye"></i>
-          </button>
+        <div class="form-group text-left">
+          <label for="email" class="mb-1 d-block">Alamat Email</label>
+          <input type="email" id="email" placeholder="contoh@gmail.com" required>
+
+          <label for="password" class="mb-1 d-block">Kata Sandi</label>
+          <div class="password-wrapper">
+            <input type="password" id="password" placeholder="Minimal 6 karakter" required>
+            <button type="button" class="toggle-password" onclick="togglePasswordVisibility()"
+              aria-label="Toggle password visibility">
+              <i id="eyeIcon" data-feather="eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <button onclick="register()" class="mb-2 mt-3 w-100">
+          Daftar Sekarang <i data-feather="check-circle"></i>
+        </button>
+
+        <div class="mt-3">
+          <p class="mb-1">Sudah punya akun?</p>
+          <button onclick="window.location.href='index.html'" class="btn-secondary">Kembali ke Login</button>
         </div>
       </div>
 
-      <button onclick="register()" class="mb-2 mt-3">
-        Daftar Sekarang <i data-feather="check-circle"></i>
-      </button>
-
-      <div class="mt-3">
-        <p class="mb-1">Sudah punya akun?</p>
-        <button onclick="window.location.href='index.html'" class="btn-secondary">Kembali ke Login</button>
+      <!-- Success Message Container (Hidden by default) -->
+      <div id="successState" style="display: none;">
+        <div class="mb-3">
+          <div class="success-icon-wrapper mb-3">
+            <i data-feather="mail" class="success-icon"></i>
+          </div>
+          <h2 class="mt-3">Cek Email Anda!</h2>
+          <p id="successEmailText" class="mb-4">Kami telah mengirimkan tautan verifikasi ke email Anda.</p>
+          
+          <div class="alert alert-info mb-4">
+            <p><small>Jika tidak ada di inbox, silakan periksa folder <strong>Spam</strong> atau <strong>Promosi</strong>.</small></p>
+          </div>
+          
+          <button onclick="window.location.href='index.html'" class="w-100">
+            Lanjut ke Login <i data-feather="arrow-right"></i>
+          </button>
+        </div>
       </div>
     </div>
   </main>

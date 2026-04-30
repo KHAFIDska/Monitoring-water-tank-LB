@@ -46,13 +46,17 @@
         </button>
       </div>
 
-      <button onclick="login()" class="mb-2">
+      <button onclick="login()" class="mb-2 w-100">
         Masuk <i data-feather="log-in"></i>
       </button>
 
+      <div id="loginMessage" style="display: none; margin-top: 15px;">
+        <!-- Error or Info Message will appear here -->
+      </div>
+
       <div class="mt-3">
         <p class="mb-1">Belum punya akun?</p>
-        <button onclick="register()" class="btn-secondary">Daftar Akun Baru</button>
+        <button onclick="window.location.href='register.html'" class="btn-secondary">Daftar Akun Baru</button>
       </div>
     </div>
   </main>
