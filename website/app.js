@@ -57,46 +57,32 @@ function register() {
         return;
     }
 
-    // Tampilkan loading jika ada (optional)
-    const btn = event?.target || document.querySelector('button[onclick="register()"]');
-    const originalText = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = 'Memproses... <i data-feather="loader"></i>';
-    feather.replace();
+    // Tampilkan loading
+    const btn = document.querySelector('button[onclick*="register"]');
+    let originalText = "";
+    if (btn) {
+        originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = 'Memproses... <i data-feather="loader" class="spin"></i>';
+        if (typeof feather !== 'undefined') feather.replace();
+    }
 
-    auth.createUserWithEmailAndPassword(email, password)
+    try {
+        auth.createUserWithEmailAndPassword(email, password)
         .then((userCredential) => {
             const user = userCredential.user;
             
-            // Kirim Verifikasi Email
-            user.sendEmailVerification()
-                .then(() => {
-                    // Simpan data awal ke database
-                    db.ref("users/" + user.uid).set({
-                        email: email,
-                        createdAt: new Date().toISOString(),
-                        emailVerified: false
-                    });
-
-                    // Tampilkan State Sukses
-                    document.getElementById("registerForm").style.display = "none";
-                    document.getElementById("successState").style.display = "block";
-                    document.getElementById("successEmailText").innerText = `Kami telah mengirimkan tautan verifikasi ke ${email}.`;
-                    feather.replace();
-
-                    // Logout agar mereka harus verifikasi dulu sebelum masuk (opsional, tapi polling butuh user stay logged in)
-                    // auth.signOut(); // Jangan logout dulu agar bisa polling status
-
-                    // Mulai polling status verifikasi
-                    startVerificationPolling();
-                })
-                .catch(emailError => {
-                    btn.disabled = false;
-                    btn.innerHTML = originalText;
-                    feather.replace();
-                    console.error("Firebase Email Error Details:", emailError);
-                    showNotification("Gagal kirim email verifikasi. Periksa koneksi atau Authorized Domains di Firebase.", "error");
-                });
+            // Simpan data awal ke database
+            db.ref("users/" + user.uid).set({
+                email: email,
+                createdAt: new Date().toISOString(),
+                emailVerified: true // Set true secara otomatis untuk kemudahan
+            }).then(() => {
+                showNotification("Pendaftaran berhasil! Silakan login.", "success");
+                setTimeout(() => {
+                    window.location = "index.html";
+                }, 2000);
+            });
         })
         .catch(err => {
             btn.disabled = false;
@@ -110,6 +96,10 @@ function register() {
                 showNotification("Gagal daftar: " + err.message, "error");
             }
         });
+    } catch (e) {
+        console.error("Critical Register Error:", e);
+        showNotification("Terjadi kesalahan sistem. Silakan coba lagi.", "error");
+    }
 }
 
 // LOGIN
@@ -138,35 +128,20 @@ function login() {
         return;
     }
 
+    // Tampilkan loading
+    const btn = document.querySelector('button[onclick*="login"]');
+    let originalText = "";
+    if (btn) {
+        originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = 'Memproses... <i data-feather="loader" class="spin"></i>';
+        if (typeof feather !== 'undefined') feather.replace();
+    }
+
     auth.signInWithEmailAndPassword(email, password)
         .then((userCredential) => {
-            const user = userCredential.user;
-
-            if (user.emailVerified) {
-                // Update status verifikasi di database jika perlu
-                db.ref("users/" + user.uid).update({
-                    emailVerified: true
-                });
-                window.location = "dashboard.html";
-            } else {
-                // Tampilkan pesan belum verifikasi dengan tombol resend
-                if (loginMessage) {
-                    loginMessage.style.display = "block";
-                    loginMessage.innerHTML = `
-                        <div class="alert alert-warning">
-                            <p class="mb-2"><strong>Email belum diverifikasi!</strong></p>
-                            <p class="mb-3" style="font-size: 0.9rem;">Silakan cek inbox Anda. Tidak menerima email?</p>
-                            <button onclick="resendVerification()" class="btn-sm w-100">
-                                Kirim Ulang Email Verifikasi <i data-feather="mail"></i>
-                            </button>
-                        </div>
-                    `;
-                    feather.replace();
-                } else {
-                    alert("Email Anda belum diverifikasi. Silakan cek inbox Anda.");
-                }
-                auth.signOut();
-            }
+            // Langsung masuk tanpa cek verifikasi
+            window.location = "dashboard.html";
         })
         .catch(err => {
             console.error("Login Error Details:", err);
@@ -175,80 +150,13 @@ function login() {
             if (document.getElementById("captchaInput")) {
                 document.getElementById("captchaInput").value = "";
             }
-        });
-}
-
-function startVerificationPolling() {
-    const checkInterval = setInterval(() => {
-        const user = auth.currentUser;
-        if (user) {
-            user.reload().then(() => {
-                if (user.emailVerified) {
-                    clearInterval(checkInterval);
-                    showNotification("Email berhasil diverifikasi! Mengalihkan...", "success");
-                    
-                    // Update status di database
-                    db.ref("users/" + user.uid).update({
-                        emailVerified: true
-                    });
-
-                    setTimeout(() => {
-                        window.location = "dashboard.html";
-                    }, 2000);
-                }
-            });
-        }
-    }, 3000); // Cek setiap 3 detik
-}
-
-function openEmailProvider() {
-    const emailInput = document.getElementById("email");
-    if (!emailInput) return;
-    
-    const email = emailInput.value;
-    const domain = email.split('@')[1]?.toLowerCase();
-    
-    if (domain === 'gmail.com') {
-        window.open('https://mail.google.com', '_blank');
-    } else if (domain === 'outlook.com' || domain === 'hotmail.com') {
-        window.open('https://outlook.live.com', '_blank');
-    } else if (domain === 'yahoo.com') {
-        window.open('https://mail.yahoo.com', '_blank');
-    } else {
-        showNotification("Membuka provider email Anda...", "info");
-        window.open('https://' + domain, '_blank');
-    }
-}
-
-function resendVerification() {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-
-    if (!email || !password) {
-        alert("Masukkan email dan password Anda kembali untuk mengirim ulang verifikasi.");
-        return;
-    }
-
-    // Login sementara untuk mendapatkan objek user
-    auth.signInWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-            const user = userCredential.user;
-            if (!user.emailVerified) {
-                user.sendEmailVerification()
-                    .then(() => {
-                        alert("Email verifikasi telah dikirim ulang! Silakan cek inbox.");
-                        auth.signOut();
-                    })
-                    .catch(e => {
-                        console.error("Resend Error:", e);
-                        alert("Gagal mengirim ulang: " + e.message + "\n\nPeriksa konfigurasi 'Authorized Domains' di Firebase.");
-                    });
-            } else {
-                alert("Email Anda sudah terverifikasi. Silakan login.");
-                window.location.reload();
-            }
         })
-        .catch(err => {
-            alert("Gagal: " + err.message);
+        .finally(() => {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                if (typeof feather !== 'undefined') feather.replace();
+            }
         });
-}
+}
+
